@@ -9,9 +9,10 @@ touch_pcb_x = 170;
 touch_pcb_y = 100;
 matrix_border_width = 10;
 led_x = 160;
+led_x_extra = 0.4;
 led_y = 80;
 led_z = 2.8;
-base_obj_z = 10;
+base_obj_z = 20;
 
 plug_width = 10;
 plug_z = 5;
@@ -64,35 +65,64 @@ module chassis(number_of_panels=1)
                     base_obj_z+pcb_thickness
                 ]);
                 // mill out pcb
-                translate([0,0,-pcb_thickness])
-                    cube([touch_pcb_x,touch_pcb_y,pcb_thickness]);
+                // it measures 99.8 but somehow gap is too small
+                // alignment will be tricky
+                touch_pcb_padding = 0.1;
+                translate([-touch_pcb_padding,-touch_pcb_padding,-pcb_thickness])
+                    cube([
+                        touch_pcb_x+2*touch_pcb_padding,
+                        touch_pcb_y+2*touch_pcb_padding,
+                        pcb_thickness
+                    ]);
 
                 // led matrix
-                led_z_cutout = 20;
-                translate([matrix_border_width,matrix_border_width,0])
-                    cube([led_x,led_y,led_z_cutout]);
+                led_z_cutout = base_obj_z+1;
+                translate([
+                    matrix_border_width-led_x_extra/2,
+                    matrix_border_width,
+                    0
+                ])
+                    cube([
+                        led_x+led_x_extra,
+                        led_y,
+                        led_z_cutout
+                    ]);
 
             {
                 // pinheader opening top right
-                translate([94,90+1,0])
-                    cube([35,10-1,20]);
+                translate([108,90,0])
+                {
+                    translate([0,1,0])
+                    cube([35,10-1,base_obj_z]);
+                    translate([0,0,7])
+                    cube([35,10,base_obj_z]);
+
+                }
                 // pinheader opening bottom left
-                translate([30,0,0])
-                    cube([34,10-1,20]);
+                translate([42,0,0])
+                {
+                    cube([34,10-1,base_obj_z]);
+                    translate([0,0,7])
+                    cube([34,10,base_obj_z]);
+                }
             }
 
                 bottom_left_plug_aperture();
                 top_left_plug_aperture();
 
+                punch_trough_touch_plane = 2;
+                translate([0,0,-punch_trough_touch_plane]) // hole through touch plane
+                {
                 translate([matrix_border_width,matrix_border_width,0])
-                    cylinder(20,d=2);
+                    cylinder(base_obj_z+punch_trough_touch_plane,d=3, $fn=80);
                 translate([matrix_border_width,matrix_border_width+led_y,0])
-                    cylinder(20,d=2);
+                    cylinder(base_obj_z+punch_trough_touch_plane,d=3, $fn=80);
                 translate([matrix_border_width+led_x,matrix_border_width,0])
-                    cylinder(20,d=2);
-
+                    cylinder(base_obj_z+punch_trough_touch_plane,d=3, $fn=80);
                 translate([matrix_border_width+led_x,matrix_border_width+led_y,0])
-                    cylinder(20,d=2);
+                    cylinder(base_obj_z+punch_trough_touch_plane,d=3, $fn=80);
+                }
+
                 if (number_of_panels > 1)
                 {
                     asymetry_length = 30;
