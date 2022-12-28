@@ -99,7 +99,7 @@ module chassis(number_of_panels=1)
 
                 }
                 // pinheader opening bottom left
-                translate([42,0,0])
+                translate([41,0,0])
                 {
                     cube([34,10-1,base_obj_z]);
                     translate([0,0,7])
